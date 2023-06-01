@@ -1,0 +1,25 @@
+.userslist {
+  display: flex;
+  flex-direction: column;
+  margin: 0 20px;
+  padding-top: 50px;
+}
+
+.userslist .item > i.icon {
+  vertical-align: middle !important;
+}
+
+.lists-panel {
+  display: flex;
+}
+
+.all-users {
+  flex-grow: 1;
+  margin-right: 20px;
+  padding-right: 20px;
+  border-right: 1px solid gray;
+}
+
+.rated-users {
+  flex-grow: 2;
+}
