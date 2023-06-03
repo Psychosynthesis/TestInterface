@@ -1,8 +1,7 @@
 .userslist {
   display: flex;
   flex-direction: column;
-  margin: 0 20px;
-  padding-top: 50px;
+  min-width: 310px;
 }
 
 .userslist .item > i.icon {
@@ -17,13 +16,42 @@
   display: flex;
 }
 
-.all-users,
-.rated-users {
-  width: 50%
+/* Only for big screens */
+@media (min-width: 721px) {
+  .userslist {
+    margin: 0 50px;
+    padding-top: 50px;
+  }
+
+  .all-users,
+  .rated-users {
+    width: 50%
+  }
+
+  .all-users {
+    margin-right: 40px;
+    padding-right: 40px;
+    border-right: 1px solid gray;
+  }
 }
 
-.all-users {
-  margin-right: 20px;
-  padding-right: 20px;
-  border-right: 1px solid gray;
+/* Mobile adaptation */
+@media (max-width: 720px) {
+  .userslist {
+    margin: 0 20px;
+    padding-top: 20px;
+  }
+
+  .lists-panel {
+    flex-direction: column;
+  }
+
+  .all-users,
+  .rated-users {
+    width: 100%
+  }
+
+  .all-users {
+    margin-bottom: 40px;
+  }
 }

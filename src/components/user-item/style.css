@@ -1,11 +1,23 @@
+.rating-modal {
+  max-width: 50%;
+}
+
 .user-item {
   display: flex !important;
+}
+
+.user-item .icon {
+  cursor: pointer;
 }
 
 .user-data {
   flex-grow: 1;
 }
 
-.user-item .icon {
-  cursor: pointer;
+.rating-block {
+  white-space: nowrap;
+}
+
+.rating-block button {
+  font-weight: bold !important;
 }

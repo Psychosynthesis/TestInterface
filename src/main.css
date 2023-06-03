@@ -12,3 +12,13 @@ code {
   font-family:
     source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+/* Only for big screens */
+@media (min-width: 721px) {
+  *, body { font-size: 18px; }
+}
+
+/* Mobile adaptation */
+@media (max-width: 720px) {
+  *, body { font-size: 21px; }
+}

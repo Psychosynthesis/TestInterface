@@ -6,7 +6,7 @@ import './style.css';
 
 interface Props {
   users: UserType[];
-  ratingChangeCallback: (uid: string, direction: boolean) => void;
+  ratingChangeCallback: (uid: string, newRating: number) => void;
   updateCallback: () => void;
   getNextCallback: () => void;
 }
@@ -18,6 +18,7 @@ const AllUsersList: React.FC<Props> = props => {
     updateCallback,
     getNextCallback
   } = props;
+
   const renderList = users.map(
     user => <UserItem
               user={user}
@@ -30,8 +31,8 @@ const AllUsersList: React.FC<Props> = props => {
   return (
     <List divided verticalAlign="middle">
       <List.Header className="all-users-header">
-        <Button compact onClick={updateCallback}>Update</Button>
-        <Button compact onClick={getNextCallback}>Next</Button>
+        <Button icon='sync' onClick={updateCallback}>Update</Button>
+        <Button onClick={getNextCallback}>Next</Button>
       </List.Header>
       {renderList}
     </List>

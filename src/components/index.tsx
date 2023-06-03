@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { Header, Loader } from 'semantic-ui-react';
 import AllUsersList from './all-users';
 import RatedUsersList from './rated-users';
+import RatingModal from './rating-modal';
 import * as Const from './constants';
 import { UserType } from './types';
 
 import './style.css';
 
 // В реальном проекте я бы, конечно, вынес получение данных куда-нибудь в другое
-// место, например в thunks или в sagas (смотря какой стек у проекта).
-// Здесь сделал так, чтобы не тратить время
+// место, например в thunks или в sagas (смотря какой стек у проекта), ну и взял
+// бы какой-нибудь фреймворк типа Axios, здесь же сделал так, чтобы не тратить время
 const fetchData = async (updateUsersCallback: Function, getNext: boolean) => {
   const url = getNext ? Const.API_URL + '&page=N' : Const.API_URL;
   const response = await fetch(url);
@@ -21,37 +22,45 @@ const fetchData = async (updateUsersCallback: Function, getNext: boolean) => {
 const UsersList: React.FC = () => {
   const [allUsers, setUsers] = useState<UserType[]>([]);
   const [ratedUsers, setRated] = useState<UserType[]>([]);
+  const [bannedUsers, setBanned] = useState<UserType[]>([]);
+  const [modalVisible, toggleModal] = useState<boolean>(false);
+  const [userToControl, setControledUser] = useState<UserType>();
   const fetchAndSet = () => fetchData(setUsers, false);
-  const getNextAndSet = () => fetchData(
-    (fetched: UserType[]) => setUsers([...allUsers, ...fetched]),
-    false
-  );
+  const getNextAndSet = () => fetchData((fetched: UserType[]) => setUsers([...allUsers, ...fetched]), false);
 
-  const showList = Boolean(allUsers.length) || Boolean(ratedUsers.length);
+  const modalAction = () => {
+    if (userToControl.rating === Const.RATING_LIMITS.MAX) { resetUser(userToControl.uid); }
+    if (userToControl.rating === Const.RATING_LIMITS.MIN) { banUser(userToControl.uid); }
+    toggleModal(false);
+  };
 
-  const changeRating = (uid: string, direction: boolean) => {
-    // direction в данном контексте - направление в какую сторону менять + или -
+  const changeRating = (uid: string, newRating: number) => {
     let userToUpdate = ratedUsers.find(user => user.uid === uid);
     if (!userToUpdate) {
       userToUpdate = allUsers.find(user => user.uid === uid);
-      userToUpdate.rating = direction ? 1 : -1;
+      userToUpdate.rating = newRating;
       setRated([...ratedUsers, userToUpdate]); // Добавляем в правый список
       setUsers(allUsers.filter(user => user.uid !== uid)); // Удаляем из левого
-
       console.log('New user was rated:', userToUpdate.username);
     } else {
       const newRatedUsers = ratedUsers.filter(user => {
         if (user.uid === uid) {
-          if (direction) {
-            userToUpdate.rating++;
-          } else {
-            userToUpdate.rating--;
-          }
+          userToUpdate.rating = newRating;
           return userToUpdate;
         } else {
           return user;
         }
       });
+
+      if (userToUpdate.rating === Const.RATING_LIMITS.MIN) {
+        setControledUser(userToUpdate);
+        toggleModal(true);
+      }
+
+      if (userToUpdate.rating === Const.RATING_LIMITS.MAX) {
+        setControledUser(userToUpdate);
+        toggleModal(true);
+      }
 
       setRated(newRatedUsers);
     }
@@ -62,6 +71,14 @@ const UsersList: React.FC = () => {
     setRated(ratedUsers.filter(user => user.uid !== uid)); // Удаляем из правого
     setUsers([...allUsers, userToReset]); // добавляем в левый
   }
+
+  const banUser = (uid: string) => {
+    const userToBan = ratedUsers.find(user => user.uid === uid);
+    setRated(ratedUsers.filter(user => user.uid !== uid)); // Удаляем из рейтинга
+    setBanned([...bannedUsers, userToBan]); // добавляем в бан
+  }
+
+  const showList = Boolean(allUsers.length) || Boolean(ratedUsers.length);
 
   useEffect(() => {
     fetchAndSet();
@@ -87,12 +104,18 @@ const UsersList: React.FC = () => {
         <div className="rated-users">
           <RatedUsersList
             ratedUsers={ratedUsers}
-            bannedUsers={[]}
+            bannedUsers={bannedUsers}
             ratingChangeCallback={changeRating}
             resetUserCallback={resetUser}
           />
         </div>
       </div>
+      <RatingModal
+        user={userToControl}
+        isOpen={modalVisible}
+        toggleCallback={toggleModal}
+        modalAction={modalAction}
+      />
     </div>
   );
 }
