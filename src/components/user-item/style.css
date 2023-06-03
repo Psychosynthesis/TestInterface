@@ -1,0 +1,11 @@
+.user-item {
+  display: flex !important;
+}
+
+.user-data {
+  flex-grow: 1;
+}
+
+.user-item .icon {
+  cursor: pointer;
+}
