@@ -31,8 +31,8 @@ const AllUsersList: React.FC<Props> = props => {
   return (
     <List divided verticalAlign="middle">
       <List.Header className="all-users-header">
-        <Button icon='sync' onClick={updateCallback}>Update</Button>
-        <Button onClick={getNextCallback}>Next</Button>
+        <Button icon='sync' onClick={updateCallback} data-testid="update-button" content="Update" />
+        <Button onClick={getNextCallback} data-testid="next-button" content="Next" />
       </List.Header>
       {renderList}
     </List>

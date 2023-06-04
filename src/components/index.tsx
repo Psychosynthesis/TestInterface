@@ -90,7 +90,7 @@ const UsersList: React.FC = () => {
         Users rating list
       </Header>
       <div className="lists-panel">
-        <div className="all-users">
+        <div className="all-users"  data-testid="all-users-list">
            {showList ?
              <AllUsersList
               users={allUsers}
@@ -101,7 +101,7 @@ const UsersList: React.FC = () => {
              <Loader active />
            }
         </div>
-        <div className="rated-users">
+        <div className="rated-users" data-testid="rated-users-list">
           <RatedUsersList
             ratedUsers={ratedUsers}
             bannedUsers={bannedUsers}

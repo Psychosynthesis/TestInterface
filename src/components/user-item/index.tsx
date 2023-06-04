@@ -32,7 +32,7 @@ const UserItem: React.FC<Props> = props => {
         </List.Content>
         <List.Content floated='right' className="rating-block">
           {(userHasRating && showRating) &&
-            <span className="user-rating">{rating} &nbsp;</span>
+            <span className="user-rating" data-testid="user-rating-count">{rating} &nbsp;</span>
           }
           {!userBanned &&
             <>
