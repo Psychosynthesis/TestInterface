@@ -6,11 +6,10 @@ interface Props {
   ratedUsers: UserType[];
   bannedUsers: UserType[];
   ratingChangeCallback: (uid: string, newRating: number) => void;
-  resetUserCallback: (uid: string) => void;
 }
 
 const RatedUsersList: React.FC<Props> = props => {
-  const { bannedUsers, ratedUsers, ratingChangeCallback, resetUserCallback } = props;
+  const { bannedUsers, ratedUsers, ratingChangeCallback } = props;
 
   const panes = [
     {
@@ -23,7 +22,6 @@ const RatedUsersList: React.FC<Props> = props => {
                       user={user}
                       key={user.uid}
                       ratingCallback={ratingChangeCallback}
-                      resetCallback={resetUserCallback}
                     />
           )}
         </List>
@@ -38,7 +36,6 @@ const RatedUsersList: React.FC<Props> = props => {
                       userBanned={true}
                       user={user}
                       key={user.uid}
-                      resetCallback={resetUserCallback}
                     />
           )}
         </List>

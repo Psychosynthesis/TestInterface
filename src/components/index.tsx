@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import { Header, Loader } from 'semantic-ui-react';
 import AllUsersList from './all-users';
 import RatedUsersList from './rated-users';
 import RatingModal from './rating-modal';
 import * as Const from './constants';
-import { UserType } from './types';
+import { EventTag, UserType } from './types';
+import { Logger } from './utils';
 
 import './style.css';
+
+// Просто для удобства, чтоб не прокидывать лишние колбэки
+export const StoreContext = createContext(null);
 
 // В реальном проекте я бы, конечно, вынес получение данных куда-нибудь в другое
 // место, например в thunks или в sagas (смотря какой стек у проекта), ну и взял
@@ -15,7 +19,6 @@ const fetchData = async (updateUsersCallback: Function, getNext: boolean) => {
   const url = getNext ? Const.API_URL + '&page=N' : Const.API_URL;
   const response = await fetch(url);
   const json: UserType[] = await response.json();
-  console.log("Users received: ", json);
   updateUsersCallback(json);
 }
 
@@ -28,12 +31,8 @@ const UsersList: React.FC = () => {
   const fetchAndSet = () => fetchData(setUsers, false);
   const getNextAndSet = () => fetchData((fetched: UserType[]) => setUsers([...allUsers, ...fetched]), false);
 
-  const modalAction = () => {
-    if (userToControl.rating === Const.RATING_LIMITS.MAX) { resetUser(userToControl.uid); }
-    if (userToControl.rating === Const.RATING_LIMITS.MIN) { banUser(userToControl.uid); }
-    toggleModal(false);
-  };
-
+  // Если было бы больше времени на продумывание, наверно тоже вытащил бы это куда-то в отдельное место
+  // Очевидно, с редаксом или мобиксом все эти функции были бы в редьюсерах
   const changeRating = (uid: string, newRating: number) => {
     let userToUpdate = ratedUsers.find(user => user.uid === uid);
     if (!userToUpdate) {
@@ -41,8 +40,9 @@ const UsersList: React.FC = () => {
       userToUpdate.rating = newRating;
       setRated([...ratedUsers, userToUpdate]); // Добавляем в правый список
       setUsers(allUsers.filter(user => user.uid !== uid)); // Удаляем из левого
-      console.log('New user was rated:', userToUpdate.username);
+      Logger(EventTag.NEW_RATED, userToUpdate.username);
     } else {
+      // Тут наверно можно почище, первое что в голову пришло
       const newRatedUsers = ratedUsers.filter(user => {
         if (user.uid === uid) {
           userToUpdate.rating = newRating;
@@ -51,72 +51,72 @@ const UsersList: React.FC = () => {
           return user;
         }
       });
-
-      if (userToUpdate.rating === Const.RATING_LIMITS.MIN) {
-        setControledUser(userToUpdate);
-        toggleModal(true);
-      }
-
-      if (userToUpdate.rating === Const.RATING_LIMITS.MAX) {
-        setControledUser(userToUpdate);
-        toggleModal(true);
-      }
-
+      Logger(EventTag.RATING_CHANGES, userToUpdate.username);
       setRated(newRatedUsers);
     }
   }
 
   const resetUser = (uid: string) => {
     const userToReset = ratedUsers.find(user => user.uid === uid);
-    setRated(ratedUsers.filter(user => user.uid !== uid)); // Удаляем из правого
     setUsers([...allUsers, userToReset]); // добавляем в левый
+    setRated(ratedUsers.filter(user => user.uid !== uid)); // Удаляем из правого
+    toggleModal(false);
+    Logger(EventTag.RESET, userToReset.username);
   }
 
   const banUser = (uid: string) => {
     const userToBan = ratedUsers.find(user => user.uid === uid);
-    setRated(ratedUsers.filter(user => user.uid !== uid)); // Удаляем из рейтинга
     setBanned([...bannedUsers, userToBan]); // добавляем в бан
+    setRated(ratedUsers.filter(user => user.uid !== uid)); // Удаляем из рейтинга
+    toggleModal(false);
+    Logger(EventTag.BANNED, userToBan.username);
   }
 
   const showList = Boolean(allUsers.length) || Boolean(ratedUsers.length);
+
+  const commonStore = {
+    toggleModal,
+    setControledUser,
+    resetUser,
+    banUser
+  };
 
   useEffect(() => {
     fetchAndSet();
   }, []);
 
   return (
-    <div className="userslist">
-      <Header as='h2' className="userslist-header">
-        Users rating list
-      </Header>
-      <div className="lists-panel">
-        <div className="all-users"  data-testid="all-users-list">
-           {showList ?
-             <AllUsersList
-              users={allUsers}
+    <StoreContext.Provider value={commonStore}>
+      <div className="userslist">
+        <Header as='h2' className="userslist-header">
+          Users rating list
+        </Header>
+        <div className="lists-panel">
+          <div className="all-users"  data-testid="all-users-list">
+             {showList ?
+               <AllUsersList
+                users={allUsers}
+                ratingChangeCallback={changeRating}
+                updateCallback={fetchAndSet}
+                getNextCallback={getNextAndSet}
+               /> :
+               <Loader active />
+             }
+          </div>
+          <div className="rated-users" data-testid="rated-users-list">
+            <RatedUsersList
+              ratedUsers={ratedUsers}
+              bannedUsers={bannedUsers}
               ratingChangeCallback={changeRating}
-              updateCallback={fetchAndSet}
-              getNextCallback={getNextAndSet}
-             /> :
-             <Loader active />
-           }
+            />
+          </div>
         </div>
-        <div className="rated-users" data-testid="rated-users-list">
-          <RatedUsersList
-            ratedUsers={ratedUsers}
-            bannedUsers={bannedUsers}
-            ratingChangeCallback={changeRating}
-            resetUserCallback={resetUser}
-          />
-        </div>
+        <RatingModal
+          user={userToControl}
+          isOpen={modalVisible}
+        />
       </div>
-      <RatingModal
-        user={userToControl}
-        isOpen={modalVisible}
-        toggleCallback={toggleModal}
-        modalAction={modalAction}
-      />
-    </div>
+    </StoreContext.Provider>
   );
 }
 

@@ -1,5 +1,8 @@
+import { useContext } from "react";
 import { Image, Icon, Button, List } from 'semantic-ui-react';
+import { StoreContext } from '../index';
 import { UserType } from '../types';
+import * as Const from '../constants';
 
 import './style.css';
 
@@ -8,26 +11,36 @@ interface Props {
   showRating: boolean;
   userBanned?: boolean;
   ratingCallback?: (uid: string, newRating: number) => void;
-  resetCallback?: (uid: string) => void;
 }
 
 const UserItem: React.FC<Props> = props => {
-  const { user, ratingCallback, resetCallback, showRating, userBanned } = props;
+  const { user, ratingCallback, showRating, userBanned } = props;
   const { username, avatar, uid, rating } = user;
+  const { toggleModal, setControledUser, resetUser } = useContext(StoreContext);
   const userHasRating = typeof(rating) === 'number' && !isNaN(rating);
   const resetAvailable = userHasRating && (rating === 0) && showRating;
-  const increaseRating = () => ratingCallback(uid, userHasRating ? rating + 1 : 1);
-  const decreaseRating = () => ratingCallback(uid, userHasRating? rating - 1: -1);
-  const resetUser = () => {
-    if (resetCallback) resetCallback(uid);
+  const increaseRating = () => {
+    const newRating = userHasRating ? rating + 1 : 1;
+    setControledUser(user);
+    ratingCallback(uid, newRating);
+    if (newRating === Const.RATING_LIMITS.MAX) { toggleModal(true); }
   }
+
+  const decreaseRating = () => {
+    const newRating = userHasRating? rating - 1: -1;
+    setControledUser(user);
+    ratingCallback(uid, newRating);
+    if (newRating === Const.RATING_LIMITS.MIN) { toggleModal(true); }
+  }
+
+  const reset = () => resetUser(uid);
 
   return (
     <List.Item className="user-item">
         <List.Content className="user-data">
           <Image src={avatar} avatar />{username}
           {resetAvailable &&
-            <>&nbsp; <Icon name="trash" onClick={resetUser} /></>
+            <>&nbsp; <Icon name="trash" onClick={reset} /></>
           }
         </List.Content>
         <List.Content floated='right' className="rating-block">
