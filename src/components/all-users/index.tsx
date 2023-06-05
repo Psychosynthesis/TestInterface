@@ -19,13 +19,13 @@ const AllUsersList: React.FC<Props> = props => {
     getNextCallback
   } = props;
 
-  const renderList = users.map(
-    user => <UserItem
-              user={user}
-              showRating={false}
-              key={user.uid}
-              ratingCallback={ratingChangeCallback}
-            />
+  const renderList = users.map(user =>
+    <UserItem
+      user={user}
+      showRating={false}
+      key={user.uid}
+      ratingCallback={ratingChangeCallback}
+    />
   );
 
   return (

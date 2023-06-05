@@ -24,14 +24,8 @@ const RatingModal: React.FC<Props> = props => {
       <Modal.Header>What to do with the user</Modal.Header>
       <Modal.Content>{text}</Modal.Content>
       <Modal.Actions>
-        <Button
-          content="Да"
-          labelPosition="right"
-          icon='checkmark'
-          onClick={modalAction}
-          positive
-        />
-        <Button color='black' onClick={onClose}>Нет</Button>
+        <Button content="Да" labelPosition="right" icon='checkmark' onClick={modalAction} positive />
+        <Button content="Нет" color='black' onClick={onClose} />
       </Modal.Actions>
     </Modal>
   );

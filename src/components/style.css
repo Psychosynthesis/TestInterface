@@ -4,6 +4,8 @@
   min-width: 310px;
 }
 
+/* !important это плохая практика, но я поленился разбираться в стилях
+semantic-ui, и css-in-js использовать не хочется, поэтому выбрал быстрое решение */
 .userslist .item > i.icon {
   vertical-align: middle !important;
 }
