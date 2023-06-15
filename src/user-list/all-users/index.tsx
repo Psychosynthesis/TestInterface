@@ -6,7 +6,6 @@ import './style.css';
 
 interface Props {
   users: UserType[];
-  ratingChangeCallback: (uid: string, newRating: number) => void;
   updateCallback: () => void;
   getNextCallback: () => void;
 }
@@ -14,7 +13,6 @@ interface Props {
 const AllUsersList: React.FC<Props> = props => {
   const {
     users,
-    ratingChangeCallback,
     updateCallback,
     getNextCallback
   } = props;
@@ -24,7 +22,6 @@ const AllUsersList: React.FC<Props> = props => {
       user={user}
       showRating={false}
       key={user.uid}
-      ratingCallback={ratingChangeCallback}
     />
   );
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import UsersList from './components';
+import UsersList from './user-list';
 
 import 'semantic-ui-css/semantic.min.css'
 import './main.css';

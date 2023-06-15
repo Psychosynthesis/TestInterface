@@ -5,11 +5,10 @@ import { UserType } from '../types';
 interface Props {
   ratedUsers: UserType[];
   bannedUsers: UserType[];
-  ratingChangeCallback: (uid: string, newRating: number) => void;
 }
 
 const RatedUsersList: React.FC<Props> = props => {
-  const { bannedUsers, ratedUsers, ratingChangeCallback } = props;
+  const { bannedUsers, ratedUsers } = props;
 
   const panes = [
     {
@@ -21,7 +20,6 @@ const RatedUsersList: React.FC<Props> = props => {
                       showRating={true}
                       user={user}
                       key={user.uid}
-                      ratingCallback={ratingChangeCallback}
                     />
           )}
         </List>
